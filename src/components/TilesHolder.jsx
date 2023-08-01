@@ -8,16 +8,11 @@ function TilesHolder() {
     return storedTiles ? JSON.parse(storedTiles) : [];
   });
 
+  const languages = window.speechSynthesis.getVoices();
+
   useEffect(() => {
     // Update localStored whenever the localStorage is modified
-    const handleStorageChange = () => {
-      setLocalStored(JSON.parse(localStorage.getItem("tiles")));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    setLocalStored(JSON.parse(localStorage.getItem("tiles")));
   }, []);
 
   const speakTileText = (tile, language) => {
@@ -27,59 +22,63 @@ function TilesHolder() {
       (item) => item.id === selectedTile.id
     );
 
-    // Create a copy of the localStored array
-    const updatedArray = [...localStored];
+    if (!window.speechSynthesis.speaking) {
+      // Create a copy of the localStored array
+      const updatedArray = [...localStored];
 
-    // Update the isClicked property of the selectedTile
-    updatedArray[selectedIndex] = { ...selectedTile, isClicked: true };
-
-    // Update the state with the modified copy
-    setLocalStored(updatedArray);
-
-    const tileSpeech = new SpeechSynthesisUtterance(selectedTile.text);
-
-    const objectLang = window.speechSynthesis
-      .getVoices()
-      .find((lang) => lang.name === language);
-
-    if (objectLang) {
-      tileSpeech.voice = objectLang;
-    }
-
-    tileSpeech.onend = () => {
-      // Create another copy of the localStored array
-      const updatedArrayAfterSpeechEnd = [...localStored];
-
-      // Update the isClicked property of the selectedTile back to false using splice
-      updatedArrayAfterSpeechEnd.splice(selectedIndex, 1, {
-        ...selectedTile,
-        isClicked: false,
-      });
+      // Update the isClicked property of the selectedTile
+      updatedArray[selectedIndex] = { ...selectedTile, isClicked: true };
 
       // Update the state with the modified copy
-      setLocalStored(updatedArrayAfterSpeechEnd);
-    };
+      setLocalStored(updatedArray);
 
-    // Speak the tile after all event handlers are set
-    window.speechSynthesis.speak(tileSpeech);
+      const tileSpeech = new SpeechSynthesisUtterance(selectedTile.text);
+
+      if (languages) {
+        const objectLang = languages.find((lang) => lang.name === language);
+
+        if (objectLang) {
+          tileSpeech.voice = objectLang;
+        }
+      }
+
+      tileSpeech.onend = () => {
+        // Create another copy of the localStored array
+        const updatedArrayAfterSpeechEnd = [...localStored];
+
+        // Update the isClicked property of the selectedTile back to false using splice
+        updatedArrayAfterSpeechEnd.splice(selectedIndex, 1, {
+          ...selectedTile,
+          isClicked: false,
+        });
+
+        // Update the state with the modified copy
+        setLocalStored(updatedArrayAfterSpeechEnd);
+      };
+
+      // Speak the tile after all event handlers are set
+      window.speechSynthesis.speak(tileSpeech);
+    } else {
+      return;
+    }
   };
 
   return (
     <>
-      {localStored.length > 0 && (
+      {localStored && localStored.length > 0 && (
         <p className="font-thin text-3xl">Here are your tiles:</p>
       )}
 
-      <div className="grid grid-cols-5 gap-3 px-2">
+      <div className="grid 2xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-3 p-6">
         {localStored &&
           localStored.map((tile) => (
             <SpeakingTouchPile
               key={tile.text}
-              language={tile.language}
+              language={tile.selectedVoice}
               title={tile.title}
               isClicked={tile.isClicked}
               speakFunction={() => {
-                speakTileText(tile, tile.language);
+                speakTileText(tile, tile.selectedVoice);
               }}
             />
           ))}

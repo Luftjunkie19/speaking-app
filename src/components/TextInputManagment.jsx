@@ -29,7 +29,7 @@ function TextInputManagement() {
 
     // Update voices when the onvoiceschanged event is triggered
     synth.onvoiceschanged = updateVoices;
-  }, [selectedVoice, synth]);
+  }, []);
 
   const playToUtter = () => {
     const utterance = new SpeechSynthesisUtterance(textToUtter);

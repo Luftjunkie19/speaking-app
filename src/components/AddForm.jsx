@@ -30,7 +30,7 @@ function AddForm() {
 
     // Update voices when the onvoiceschanged event is triggered
     synth.onvoiceschanged = updateVoices;
-  }, [selectedVoice]);
+  }, []);
 
   const createNewSpeakingTile = (e) => {
     e.preventDefault();
