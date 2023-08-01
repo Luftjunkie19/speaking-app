@@ -29,7 +29,7 @@ function TextInputManagement() {
 
     // Update voices when the onvoiceschanged event is triggered
     synth.onvoiceschanged = updateVoices;
-  }, []);
+  }, [selectedVoice, synth]);
 
   const playToUtter = () => {
     const utterance = new SpeechSynthesisUtterance(textToUtter);
@@ -105,6 +105,10 @@ function TextInputManagement() {
               </option>
             ))}
           </select>
+        )}
+
+        {!loadingVoices && availableVoices.length === 0 && (
+          <p>Something went wrong, please refresh the page.</p>
         )}
       </div>
 
