@@ -1,23 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import "./index.css";
+
+import AddForm from "./components/AddForm";
+import NavigationBar from "./components/NavigationBar";
+import TextInputManagment from "./components/TextInputManagment";
+import TilesHolder from "./components/TilesHolder";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <NavigationBar />
+
+      <div className="flex items-center justify-around flex-col">
+        <div className="flex flex-col justify-center items-center my-2">
+          <p>WELCOME TO</p>
+          <p className="text-6xl font-bold mb-6">RIDE&SPEAK</p>
+        </div>
+
+        <TextInputManagment />
+
+        <TilesHolder />
+      </div>
+
+      <AddForm />
     </div>
   );
 }
