@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 
+import { useDispatch } from "react-redux";
+
 import { useFormContext } from "../hooks/useFormContext";
 import { SpeakingTile } from "../Objects/SpeakingTile";
+import { localStoredDataActions } from "../reducer/LocalStorage";
 
 function AddForm() {
   const { isOpened, dispatch } = useFormContext();
@@ -9,6 +12,8 @@ function AddForm() {
   const [tileText, setTileText] = useState("");
   const [tileTitle, setTileTitle] = useState("");
   const [selectedVoice, setSelectedVoice] = useState(null);
+
+  const dispatchFunction = useDispatch();
 
   useEffect(() => {
     const synth = window.speechSynthesis;
@@ -30,7 +35,7 @@ function AddForm() {
 
     // Update voices when the onvoiceschanged event is triggered
     synth.onvoiceschanged = updateVoices;
-  }, []);
+  }, [selectedVoice]);
 
   const createNewSpeakingTile = (e) => {
     e.preventDefault();
@@ -47,16 +52,7 @@ function AddForm() {
       new Date().getTime()
     );
 
-    let localStored = JSON.parse(localStorage.getItem("tiles"));
-
-    if (localStored === null) {
-      localStored = [];
-      localStored.push(speakingTile);
-      localStorage.setItem("tiles", JSON.stringify(localStored));
-    } else {
-      localStored.push(speakingTile);
-      localStorage.setItem("tiles", JSON.stringify(localStored));
-    }
+    dispatchFunction(localStoredDataActions.addToStorage(speakingTile));
 
     dispatch({ type: "CLOSED" });
   };

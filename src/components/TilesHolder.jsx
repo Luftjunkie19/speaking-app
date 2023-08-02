@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
+import { useDispatch, useSelector } from "react-redux";
+
+import { localStoredDataActions } from "../reducer/LocalStorage";
 import SpeakingTouchPile from "./SpeakingTouchPile";
 
 function TilesHolder() {
-  const [localStored, setLocalStored] = useState(() => {
-    const storedTiles = localStorage.getItem("tiles");
-    return storedTiles ? JSON.parse(storedTiles) : [];
-  });
+  const localStored = useSelector((state) => state.localStored.tiles);
+
+  const dispatch = useDispatch();
 
   const languages = window.speechSynthesis.getVoices();
-
-  useEffect(() => {
-    // Update localStored whenever the localStorage is modified
-    setLocalStored(JSON.parse(localStorage.getItem("tiles")));
-  }, []);
 
   const speakTileText = (tile, language) => {
     const selectedTile = localStored.find((stored) => stored.id === tile.id);
@@ -29,8 +26,7 @@ function TilesHolder() {
       // Update the isClicked property of the selectedTile
       updatedArray[selectedIndex] = { ...selectedTile, isClicked: true };
 
-      // Update the state with the modified copy
-      setLocalStored(updatedArray);
+      dispatch(localStoredDataActions.updateStorage(updatedArray));
 
       const tileSpeech = new SpeechSynthesisUtterance(selectedTile.text);
 
@@ -44,7 +40,7 @@ function TilesHolder() {
 
       tileSpeech.onend = () => {
         // Create another copy of the localStored array
-        const updatedArrayAfterSpeechEnd = [...localStored];
+        let updatedArrayAfterSpeechEnd = [...localStored];
 
         // Update the isClicked property of the selectedTile back to false using splice
         updatedArrayAfterSpeechEnd.splice(selectedIndex, 1, {
@@ -53,7 +49,9 @@ function TilesHolder() {
         });
 
         // Update the state with the modified copy
-        setLocalStored(updatedArrayAfterSpeechEnd);
+        dispatch(
+          localStoredDataActions.updateStorage(updatedArrayAfterSpeechEnd)
+        );
       };
 
       // Speak the tile after all event handlers are set

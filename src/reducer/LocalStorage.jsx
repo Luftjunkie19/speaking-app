@@ -14,7 +14,11 @@ export const localStoredDataContext = createSlice({
       localStorage.setItem("tiles", JSON.stringify(state.tiles));
     },
 
-    updateStorage: (state, action) => {},
+    updateStorage: (state, action) => {
+      state.tiles = action.payload;
+
+      localStorage.setItem("tiles", JSON.stringify(state.tiles));
+    },
 
     removeFromStorage: (state, action) => {
       let rest = JSON.parse(localStorage.getItem("tiles")).filter(
